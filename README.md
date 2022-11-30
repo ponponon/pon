@@ -2,9 +2,10 @@
 
 ## Introduce
 
-ponponon(pon) an advanced message queue framework, derived from nameko
+ponponon(pon) an advanced message queue framework, derived from nameko 
 
-## Installation
+ ⭐️ 🌟 ✨ ⚡️ ☄️ 💥
+## Installation 
 
 Package is uploaded on PyPI.
 
@@ -15,6 +16,11 @@ pip install ponponon
 ```
 
 ## Requirements
+
+Python -- one of the following:
+
+- CPython : 3.8 and newer ✅
+- PyPy : Software compatibility not yet tested ❓
 
 ## Features
 
