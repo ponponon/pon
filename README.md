@@ -2,10 +2,11 @@
 
 ## Introduce
 
-ponponon(pon) an advanced message queue framework, derived from nameko 
+ponponon(pon) an advanced message queue framework, derived from nameko
 
- ⭐️ 🌟 ✨ ⚡️ ☄️ 💥
-## Installation 
+⭐️ 🌟 ✨ ⚡️ ☄️ 💥
+
+## Installation
 
 Package is uploaded on PyPI.
 
@@ -23,6 +24,11 @@ Python -- one of the following:
 - PyPy : Software compatibility not yet tested ❓
 
 ## Features
+
+- Support for concurrent processes: eventlet, gevent
+- Support amqp protocol
+- Support for http protocol
+- Support for grpc protocol
 
 ## Documentation
 
