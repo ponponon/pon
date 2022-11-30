@@ -20,8 +20,12 @@ setuptools.setup(
     url="https://github.com/ponponon/pon",
     packages=setuptools.find_packages(),
     install_requires=[
-        "click",
-        "psutil",
+        "pydantic",
+        "loguru",
+        "pyyaml",
+        "eventlet",
+        "kombu",
+        "werkzeug",
     ],
     extras_require={
     },
