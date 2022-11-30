@@ -2,7 +2,9 @@
 
 ## Introduce
 
-ponponon(pon) an advanced message queue framework, derived from nameko
+![](https://www.rabbitmq.com/img/logo-rabbitmq.svg)
+
+ponponon(pon) an advanced message queue framework, derived from [nameko](https://github.com/nameko/nameko)
 
 ⭐️ 🌟 ✨ ⚡️ ☄️ 💥
 
@@ -29,6 +31,7 @@ Python -- one of the following:
 - Support amqp protocol
 - Support for http protocol
 - Support for grpc protocol
+
 
 ## Documentation
 
