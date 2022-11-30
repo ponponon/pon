@@ -1,0 +1,9 @@
+click 
+pydantic 
+loguru 
+pyyaml 
+psutil
+rabbitmq
+eventlet
+kombu
+werkzeug
