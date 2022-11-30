@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 from pon import VERSION
 
 setuptools.setup(
-    name="pon",
+    name="ponponon",
     version=VERSION,
     author="ponponon",
     author_email="1729303158@qq.com",
