@@ -19,7 +19,17 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ponponon/pon",
     packages=setuptools.find_packages(),
-    install_requires=[],
+    install_requires=[
+        "click",
+        "psutil",
+    ],
+    extras_require={
+    },
+    entry_points={
+        'console_scripts': [
+            'pon=pon.cli.main:cli',
+        ]
+    },
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.8',
