@@ -31,10 +31,16 @@ setuptools.setup(
         ]
     },
     classifiers=[
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Software Development :: Libraries'
+        "Programming Language :: Python",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Internet",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Intended Audience :: Developers",
     ]
 )
