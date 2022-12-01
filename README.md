@@ -2,8 +2,6 @@
 
 ## Introduce
 
-![](https://www.rabbitmq.com/img/logo-rabbitmq.svg)
-
 ponponon(pon) an advanced message queue framework, derived from [nameko](https://github.com/nameko/nameko)
 
 ⭐️ 🌟 ✨ ⚡️ ☄️ 💥
@@ -76,6 +74,8 @@ pon run --config config.yaml services
 ### Check it
 
 ## Resources
+
+![](https://www.rabbitmq.com/img/logo-rabbitmq.svg)
 
 ## License
 
