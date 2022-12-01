@@ -31,7 +31,7 @@ Python -- one of the following:
 - Support amqp protocol
 - Support for http protocol
 - Support for grpc protocol
-
+- Support typing hints, like Fastapi
 
 ## Documentation
 
