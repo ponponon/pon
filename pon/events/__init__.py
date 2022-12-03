@@ -38,7 +38,7 @@ class EventletEventRunner:
 
     def load_service_cls_list(self, services: Tuple[str]) -> List[type]:
         BASE_DIR: Path = Path(os.getcwd())
-        sys.path.append(BASE_DIR)
+        sys.path.append(str(BASE_DIR))
 
         service_cls_list: List[type] = []
 

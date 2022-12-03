@@ -53,7 +53,7 @@ class EventletAPIRunner:
 
     def load_service_cls_list(self, services: Tuple[str]) -> List[type]:
         cwd: Path = Path(os.getcwd())
-        sys.path.append(cwd)
+        sys.path.append(str(cwd))
 
         service_cls_list: List[type] = []
 
