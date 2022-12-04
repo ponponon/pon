@@ -58,9 +58,6 @@ class EventletAPIRunner:
         service_cls_list: List[type] = []
 
         for service in services:
-
-            logger.debug(service)
-
             items: List[str] = service.split(':')
             if len(items) == 1:
                 module_name, service_class_name = items[0], None

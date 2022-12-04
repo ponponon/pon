@@ -1,17 +1,16 @@
 import os
 import sys
-from typing import Tuple, ClassVar, Type, Dict, List
-import yaml
 from pathlib import Path
+from typing import Tuple, ClassVar, Type, Dict, List, Callable
+import yaml
 from loguru import logger
 from kombu import Exchange, Queue
+from kombu.utils.compat import nested
 from kombu import Connection, Consumer, Queue
 from kombu.transport.pyamqp import Channel
-from kombu.utils.compat import nested
-from typing import Callable
-from collections import namedtuple
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
+from pon.core import get_class_names
 
 
 class QueueLine:
@@ -43,9 +42,6 @@ class EventletEventRunner:
         service_cls_list: List[type] = []
 
         for service in services:
-
-            logger.debug(service)
-
             items: List[str] = service.split(':')
             if len(items) == 1:
                 module_name, service_class_name = items[0], None
@@ -55,12 +51,16 @@ class EventletEventRunner:
                 raise Exception(f'错误的 service 格式: {service}')
 
             __import__(module_name)
-
             module = sys.modules[module_name]
 
-            service_cls = getattr(module, service_class_name)
+            if service_class_name:
+                service_class_names = [service_class_name]
+            else:
+                service_class_names = get_class_names(module_name)
 
-            service_cls_list.append(service_cls)
+            for service_class_name in service_class_names:
+                service_cls = getattr(module, service_class_name)
+                service_cls_list.append(service_cls)
 
         return service_cls_list
 
@@ -68,8 +68,6 @@ class EventletEventRunner:
         with open(config_filepath, 'r', encoding='utf-8') as f:
             config: Dict[str, Dict] = yaml.safe_load(f)
         self.amqp_uri = config['AMQP_URI']
-
-        logger.debug(self.amqp_uri)
 
     def declare_exchange(self, exchange: Exchange):
         with Connection(self.amqp_uri) as conn:
@@ -89,9 +87,6 @@ class EventletEventRunner:
         service_cls_list: List[type] = self.load_service_cls_list(services)
 
         from pon.events.entrance import PON_METHOD_ATTR_NAME
-
-        logger.debug(service_cls_list)
-
         # 1. 去 rabbitmq 创建消息队列
 
         for service_cls in service_cls_list:
@@ -121,7 +116,6 @@ class EventletEventRunner:
                     self.declare_queue(queue)
                     self.queues.append(QueueLine(
                         queue, service_cls, consumer_method))
-                    logger.debug(f'queue: {queue_name}')
 
         # 2. 开始监听和消费
         with Connection(self.amqp_uri) as conn:
@@ -140,8 +134,6 @@ class EventletEventRunner:
                     ).handle_message
                 )
                 consumers.append(consumer)
-
-            logger.debug(consumers)
 
             with nested(*consumers):
                 while True:

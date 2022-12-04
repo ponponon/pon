@@ -70,16 +70,10 @@ class MessageConsumer:
         - application/json 对应的 type 就是 dict
         """
         # assert isinstance(message.body, bytes)
-        logger.debug(f'{signature(self.consumer_method).parameters}')
-
         typed_signature = get_typed_signature(
             self.consumer_method).parameters.items()
 
         method_args = [None for _ in range(len(typed_signature))]
-
-        logger.debug(message.properties)
-
-        logger.debug(message.headers)
         try:
             for index, (parameter_name, parameter) in enumerate(typed_signature):
                 if parameter_name == 'self':
@@ -106,8 +100,6 @@ class MessageConsumer:
                     if header_value and (int in get_args(parameter.annotation)):
                         header_value = int(header_value)
                     method_args[index] = header_value
-
-            logger.debug(method_args)
 
             self.consumer_method(*method_args)
         except Exception as error:
