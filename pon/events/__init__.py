@@ -117,6 +117,9 @@ class EventletEventRunner:
                     self.queues.append(QueueLine(
                         queue, service_cls, consumer_method))
 
+        logger.info(
+            f'load services: {", ".join([service_class.__name__ for service_class in service_cls_list])}')
+
         # 2. 开始监听和消费
         while True:
             try:
@@ -136,7 +139,7 @@ class EventletEventRunner:
                             ).handle_message
                         )
                         consumers.append(consumer)
-                    logger.info(f'开始消费 {self.amqp_uri}')
+                    logger.info(f'start consuming {self.amqp_uri}')
 
                     with nested(*consumers):
                         while True:
