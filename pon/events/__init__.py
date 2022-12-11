@@ -118,26 +118,28 @@ class EventletEventRunner:
                         queue, service_cls, consumer_method))
 
         # 2. 开始监听和消费
-        with Connection(self.amqp_uri) as conn:
-            consumers: List[Consumer] = []
-            for queueline in self.queues:
+        while True:
+            try:
+                with Connection(self.amqp_uri) as conn:
+                    consumers: List[Consumer] = []
+                    for queueline in self.queues:
 
-                channel: Channel = conn.channel()
-                consumer = Consumer(
-                    channel,
-                    queues=[queueline.queue],
-                    prefetch_count=1,
-                    on_message=MessageConsumer(
-                        queue=queueline.queue,
-                        service_cls=queueline.service_cls,
-                        consumer_method=queueline.method
-                    ).handle_message
-                )
-                consumers.append(consumer)
+                        channel: Channel = conn.channel()
+                        consumer = Consumer(
+                            channel,
+                            queues=[queueline.queue],
+                            prefetch_count=1,
+                            on_message=MessageConsumer(
+                                queue=queueline.queue,
+                                service_cls=queueline.service_cls,
+                                consumer_method=queueline.method
+                            ).handle_message
+                        )
+                        consumers.append(consumer)
+                    logger.info(f'开始消费 {self.amqp_uri}')
 
-            with nested(*consumers):
-                while True:
-                    try:
-                        conn.drain_events()
-                    except Exception as error:
-                        logger.exception(error)
+                    with nested(*consumers):
+                        while True:
+                            conn.drain_events()
+            except Exception as error:
+                logger.warning(error)
