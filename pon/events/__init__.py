@@ -12,6 +12,7 @@ from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
 from pon.core import get_class_names
+from pon.events.register import event_handler
 
 
 def is_dispatcher(obj: Type[Any]) -> bool:
@@ -116,7 +117,7 @@ class EventletEventRunner:
 
         service_cls_list: List[type] = self.load_service_cls_list(services)
 
-        from pon.events.entrance import PON_METHOD_ATTR_NAME
+        from pon.events.register import PON_METHOD_ATTR_NAME
         # 1. 去 rabbitmq 创建消息队列
 
         for service_cls in service_cls_list:

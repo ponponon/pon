@@ -29,7 +29,7 @@ def run(services: Tuple[str], config: Optional[str] = None):
     eventlet.spawn_n(EventletEventRunner().run, services, config_filepath)
     # eventlet.spawn_n(EventletAPIRunner().run, services, config_filepath)
 
-    gt = eventlet.spawn(run_forever)
+    gt = eventlet.spawn(run_forever) 
     gt.wait()
 
 
