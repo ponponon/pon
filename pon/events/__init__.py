@@ -1,8 +1,9 @@
 import os
 import sys
 from pathlib import Path
-from typing import Tuple, ClassVar, Type, Dict, List, Callable
+from typing import Tuple, ClassVar, Type, Dict, List, Callable, Any
 import yaml
+import inspect
 from loguru import logger
 from kombu import Exchange, Queue
 from kombu.utils.compat import nested
@@ -11,6 +12,34 @@ from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
 from pon.core import get_class_names
+
+
+def is_dispatcher(obj: Type[Any]) -> bool:
+    return isinstance(obj, EventDispatcher)
+
+
+class EventRunnerContext:
+    service_name: str
+
+    def __init__(self, config: dict):
+        self.config = config
+
+    def setup_service_name(self, service_name: str):
+        self.service_name: str = service_name
+
+
+class EventDispatcher:
+    context: EventRunnerContext
+
+    def __call__(self, event_type: str, event_data: Any) -> None:
+        from pon.standalone.events import event_dispatcher
+        amqp_uri = self.context.config['AMQP_URI']
+        dispatch = event_dispatcher(amqp_uri)
+        dispatch(
+            service_name=self.context.service_name,
+            event_type=event_type,
+            event_data=event_data
+        )
 
 
 class QueueLine:
@@ -67,6 +96,7 @@ class EventletEventRunner:
     def load_config(self, config_filepath: Path):
         with open(config_filepath, 'r', encoding='utf-8') as f:
             config: Dict[str, Dict] = yaml.safe_load(f)
+            self.context = EventRunnerContext(config)
         self.amqp_uri = config['AMQP_URI']
 
     def declare_exchange(self, exchange: Exchange):
@@ -90,6 +120,14 @@ class EventletEventRunner:
         # 1. 去 rabbitmq 创建消息队列
 
         for service_cls in service_cls_list:
+            for attr_name, dispatcher in inspect.getmembers(
+                    service_cls,
+                    is_dispatcher
+            ):
+                dispatcher: EventDispatcher
+                dispatcher.context = self.context
+                dispatcher.context.setup_service_name(service_cls.name)
+
             for item in dir(service_cls):
                 cls_property: Callable = getattr(service_cls, item)
                 if hasattr(cls_property, PON_METHOD_ATTR_NAME):
