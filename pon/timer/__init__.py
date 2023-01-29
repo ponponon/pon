@@ -100,3 +100,5 @@ class EventletTimerRunner:
                     # 获取修饰器附加的参数
                     interval: Union[int,
                                     float] = pon_timer_func_config['interval']
+                    service_instance = service_cls()
+                    consumer_method(service_instance, interval)
