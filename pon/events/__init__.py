@@ -78,7 +78,7 @@ class EventletEventRunner:
             elif len(items) == 2:
                 module_name, service_class_name = items
             else:
-                raise Exception(f'错误的 service 格式: {service}')
+                raise Exception(f'Wrong service format: {service}')
 
             __import__(module_name)
             module = sys.modules[module_name]
@@ -99,6 +99,7 @@ class EventletEventRunner:
             config: Dict[str, Dict] = yaml.safe_load(f)
             self.context = EventRunnerContext(config)
         self.amqp_uri = config['AMQP_URI']
+        logger.info(self.amqp_uri)
 
     def declare_exchange(self, exchange: Exchange):
         with Connection(self.amqp_uri) as conn:
@@ -120,6 +121,8 @@ class EventletEventRunner:
         from pon.events.register import PON_METHOD_ATTR_NAME
         # 1. 去 rabbitmq 创建消息队列
 
+        pon_service_cls_list: List[type] = []
+
         for service_cls in service_cls_list:
             for attr_name, dispatcher in inspect.getmembers(
                     service_cls,
@@ -132,8 +135,10 @@ class EventletEventRunner:
             for item in dir(service_cls):
                 cls_property: Callable = getattr(service_cls, item)
                 if hasattr(cls_property, PON_METHOD_ATTR_NAME):
-                    consumer_method = cls_property
 
+                    pon_service_cls_list.append(service_cls)
+
+                    consumer_method = cls_property
                     pon_consumer_func_config = getattr(
                         consumer_method, PON_METHOD_ATTR_NAME)
                     # 获取修饰器附加的参数
@@ -157,7 +162,7 @@ class EventletEventRunner:
                         queue, service_cls, consumer_method))
 
         logger.info(
-            f'load services: {", ".join([service_class.__name__ for service_class in service_cls_list])}')
+            f'load services: {", ".join([sc.__name__ for sc in set(pon_service_cls_list)])}')
 
         # 2. 开始监听和消费
         while True:
