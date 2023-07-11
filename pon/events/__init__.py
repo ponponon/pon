@@ -175,7 +175,7 @@ class EventletEventRunner:
                         consumer = Consumer(
                             channel,
                             queues=[queueline.queue],
-                            prefetch_count=1,
+                            prefetch_count=10,
                             on_message=MessageConsumer(
                                 queue=queueline.queue,
                                 service_cls=queueline.service_cls,
