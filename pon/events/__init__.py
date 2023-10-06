@@ -167,7 +167,22 @@ class EventletEventRunner:
         # 2. 开始监听和消费
         while True:
             try:
-                with Connection(self.amqp_uri) as conn:
+                from pon.constants import DEFAULT_FRAMEWORK, DEFAULT_FRAMEWORK_GITHUB, DEFAULT_PROJECT_NAME
+                from pon import VERSION
+                framework = self.context.config.get(
+                    'FRAMEWORK', DEFAULT_FRAMEWORK)
+                framework_github = self.context.config.get(
+                    'DEFAULT_FRAMEWORK_GITHUB', DEFAULT_FRAMEWORK_GITHUB)
+                project_name = self.context.config.get(
+                    'PROJECT_NAME', os.environ['PROJECT_NAME'] or DEFAULT_PROJECT_NAME)
+
+                with Connection(self.amqp_uri, transport_options={
+                        'client_properties': {
+                            'framework': framework,
+                            'framework_version': VERSION,
+                            'framework_github': framework_github,
+                            'project_name': project_name,
+                        }}) as conn:
                     consumers: List[Consumer] = []
                     for queueline in self.queues:
 

@@ -25,6 +25,12 @@ def run(services: Tuple[str], config: Optional[str] = None):
     from pon.events import EventletEventRunner
     from pon.web import EventletAPIRunner
 
+    ROOT_DIR = Path(os.path.abspath(os.curdir))
+    PROJECT_NAME = ROOT_DIR.name
+
+    os.environ['ROOT_DIR'] = str(ROOT_DIR)
+    os.environ['PROJECT_NAME'] = PROJECT_NAME
+
     gt = eventlet.spawn(EventletEventRunner().run, services, config_filepath)
     gt.wait()
 
