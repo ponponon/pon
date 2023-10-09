@@ -10,6 +10,7 @@ from typing import (
     cast,
     get_args
 )
+import eventlet
 from loguru import logger
 from kombu.transport.pyamqp import Message
 from kombu import Queue
@@ -64,6 +65,9 @@ class MessageConsumer:
         self.consumer_method = consumer_method
 
     def handle_message(self, message: Message):
+        eventlet.spawn(self._handle_message, message)
+
+    def _handle_message(self, message: Message):
         """
         body 的 type 取决于 message 的 Properties 的 content_type
         content_type:
