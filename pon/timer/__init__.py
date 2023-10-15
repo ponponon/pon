@@ -92,11 +92,28 @@ class EventletTimerRunner:
         interval: Union[int,
                         float] = pon_timer_func_config['interval']
         execute_before_sleep: bool = pon_timer_func_config['execute_before_sleep']
-        timeout: Optional[float] = pon_timer_func_config['timeout']
+        timeout: Optional[float] = pon_timer_func_config['timeout'] or None
         wait: bool = pon_timer_func_config['wait']
 
         service_instance = service_cls()
 
+        if execute_before_sleep:
+            try:
+                with eventlet.Timeout(timeout):
+                    if wait:
+                        timer_method(service_instance)
+                    else:
+                        eventlet.spawn_n(service_instance)
+            except Exception:
+                pass
+
         while True:
-            timer_method(service_instance)
-            time.sleep(interval)
+            try:
+                time.sleep(interval)
+                with eventlet.Timeout(timeout):
+                    if wait:
+                        timer_method(service_instance)
+                    else:
+                        eventlet.spawn_n(service_instance)
+            except Exception:
+                pass
