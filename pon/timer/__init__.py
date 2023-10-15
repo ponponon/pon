@@ -108,8 +108,8 @@ class EventletTimerRunner:
                 pass
 
         while True:
+            time.sleep(interval)
             try:
-                time.sleep(interval)
                 with eventlet.Timeout(timeout):
                     if wait:
                         timer_method(service_instance)
