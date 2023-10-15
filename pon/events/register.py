@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable,Dict
+from typing import Callable, Dict
 from loguru import logger
 
 
@@ -9,6 +9,9 @@ PON_CONSUMER_METHODS: Dict[type, Callable] = {}
 
 
 def event_handler(source_service: str, event_name: str, **event_handler_kwagrs):
+    """
+    Every time you call a modifier modified function, the modifier class is instantiated
+    """
     def decorate(pon_service_cls_consumer_method: Callable):
 
         pon_consumer_func_config = {

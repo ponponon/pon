@@ -160,6 +160,9 @@ class EventletEventRunner:
                     self.declare_queue(queue)
                     self.queues.append(QueueLine(
                         queue, service_cls, consumer_method))
+        if not pon_service_cls_list:
+            logger.debug(f'未发现事件服务')
+            return
 
         logger.info(
             f'load services: {", ".join([sc.__name__ for sc in set(pon_service_cls_list)])}')

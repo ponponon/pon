@@ -1,9 +1,12 @@
 import os
 import sys
-from pathlib import Path
-from typing import Tuple, ClassVar, Type, Dict, List, Callable, Any, Union
-import yaml
+import time
 import inspect
+from pathlib import Path, List
+from typing import Tuple, ClassVar, Type, Dict, List, Callable, Any, Union, Optional
+import yaml
+import eventlet
+from eventlet.greenthread import GreenThread
 from loguru import logger
 from kombu import Exchange, Queue
 from kombu.utils.compat import nested
@@ -63,42 +66,37 @@ class EventletTimerRunner:
             self.context = EventRunnerContext(config)
         self.amqp_uri = config['AMQP_URI']
 
-    def declare_exchange(self, exchange: Exchange):
-        with Connection(self.amqp_uri) as conn:
-            with conn.channel() as channel:
-                exchange.declare(channel=channel)
-
-    def declare_queue(self, queue: Queue):
-        with Connection(self.amqp_uri) as conn:
-            with conn.channel() as channel:
-                queue.declare(channel=channel)
-
     def run(self, services: Tuple[str], config_filepath: Path):
         self.load_config(config_filepath)
 
         service_cls_list: List[type] = self.load_service_cls_list(services)
 
-        from pon.events.register import PON_METHOD_ATTR_NAME
         # 1. 去 rabbitmq 创建消息队列
-
+        gts: List[GreenThread] = []
         for service_cls in service_cls_list:
-            for attr_name, dispatcher in inspect.getmembers(
-                    service_cls,
-                    is_dispatcher
-            ):
-                dispatcher: EventDispatcher
-                dispatcher.context = self.context
-                dispatcher.context.setup_service_name(service_cls.name)
-
             for item in dir(service_cls):
                 cls_property: Callable = getattr(service_cls, item)
                 if hasattr(cls_property, PON_TIMER_METHOD_ATTR_NAME):
-                    consumer_method = cls_property
+                    timer_method = cls_property
+                    gt = eventlet.spawn(
+                        self.run_timer, service_cls, timer_method)
+                    gts.append(gt)
+        for gt in gts:
+            gt.wait()
 
-                    pon_timer_func_config = getattr(
-                        consumer_method, PON_TIMER_METHOD_ATTR_NAME)
-                    # 获取修饰器附加的参数
-                    interval: Union[int,
-                                    float] = pon_timer_func_config['interval']
-                    service_instance = service_cls()
-                    consumer_method(service_instance, interval)
+    def run_timer(self, service_cls: type, timer_method: Callable):
+        pon_timer_func_config: Dict[str, Any] = getattr(
+            timer_method, PON_TIMER_METHOD_ATTR_NAME)
+        # 获取修饰器附加的参数
+
+        interval: Union[int,
+                        float] = pon_timer_func_config['interval']
+        execute_before_sleep: bool = pon_timer_func_config['execute_before_sleep']
+        timeout: Optional[float] = pon_timer_func_config['timeout']
+        wait: bool = pon_timer_func_config['wait']
+
+        service_instance = service_cls()
+
+        while True:
+            timer_method(service_instance)
+            time.sleep(interval)

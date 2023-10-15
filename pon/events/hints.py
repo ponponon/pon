@@ -1,5 +1,6 @@
 from kombu.transport.pyamqp import Message as KMessage
 
+
 class Property:
     pass
 
