@@ -53,12 +53,6 @@ Python -- one of the following:
 - Support for grpc protocol
 - Support typing hints, like Fastapi
 
-## Documentation
-
-📄 Intensified preparation in progress
-
-## Example
-
 ### Create it
 
 ```python
