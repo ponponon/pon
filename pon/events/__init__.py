@@ -1,18 +1,16 @@
 import os
 import sys
 from pathlib import Path
-from typing import Tuple, ClassVar, Type, Dict, List, Callable, Any
+from typing import Tuple, Type, Dict, List, Callable, Any
 import yaml
 import inspect
 from loguru import logger
-from kombu import Exchange, Queue
 from kombu.utils.compat import nested
-from kombu import Connection, Consumer, Queue
+from kombu import Connection, Consumer, Queue, Exchange
 from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
 from pon.core import get_class_names
-from pon.events.register import event_handler
 
 
 def is_dispatcher(obj: Type[Any]) -> bool:
@@ -161,7 +159,7 @@ class EventletEventRunner:
                     self.queues.append(QueueLine(
                         queue, service_cls, consumer_method))
         if not pon_service_cls_list:
-            logger.debug(f'未发现事件服务')
+            logger.debug('No event service found')
             return
 
         logger.info(

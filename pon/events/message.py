@@ -1,5 +1,4 @@
 import inspect
-from inspect import signature
 from typing import (
     Any,
     Callable,

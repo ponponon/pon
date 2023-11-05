@@ -4,10 +4,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Callable
 import yaml
 import eventlet
-from loguru import logger
 from eventlet import wsgi
-from werkzeug.wrappers import Request, Response
-from werkzeug.routing import Map, Rule
+from werkzeug.wrappers import Request
 from werkzeug.exceptions import HTTPException
 from eventlet.greenio.base import GreenSocket
 from eventlet.greenthread import GreenThread
@@ -99,5 +97,4 @@ class EventletAPIRunner:
         # wsgi.server(server_socket, app)
 
         gt: GreenThread = eventlet.spawn(wsgi.server, server_socket, app)
-
-        # gt.wait()
+        gt.wait()

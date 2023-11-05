@@ -1,7 +1,6 @@
 from kombu import Connection
 from kombu.pools import connections
 from kombu.connection import ConnectionPool
-from kombu import Connection
 
 
 def get_connection_pool(connection: Connection) -> ConnectionPool:
