@@ -5,9 +5,8 @@ from typing import Tuple, Type, Dict, List, Callable, Any
 import yaml
 import inspect
 from loguru import logger
-from kombu import Exchange
 from kombu.utils.compat import nested
-from kombu import Connection, Consumer, Queue
+from kombu import Connection, Consumer, Queue, Exchange
 from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
