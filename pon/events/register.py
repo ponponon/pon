@@ -1,6 +1,5 @@
 from functools import wraps
 from typing import Callable, Dict
-from loguru import logger
 
 
 PON_METHOD_ATTR_NAME = 'pon_consumer_func_config'

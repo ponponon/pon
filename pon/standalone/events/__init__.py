@@ -1,13 +1,8 @@
 from typing import Union, Dict
 from kombu import Exchange
 from kombu import Connection
-from kombu.messaging import Producer
 from kombu.transport.base import Message
-
-from kombu import Exchange, Queue
-from loguru import logger
-import time
-from pon.constants import NON_PERSISTENT, PERSISTENT
+from pon.constants import PERSISTENT
 
 
 def get_event_exchange(service_name: str) -> Exchange:

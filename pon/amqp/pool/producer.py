@@ -1,4 +1,3 @@
-from kombu.messaging import Producer
 from kombu.pools import producers, ProducerPool
 from kombu import Connection, Producer
 

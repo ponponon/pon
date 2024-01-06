@@ -25,7 +25,7 @@ def run(services: Tuple[str], config: Optional[str] = None):
     config_filepath: Path = Path(os.getcwd())/config
     from pon.events import EventletEventRunner
     from pon.timer import EventletTimerRunner
-    from pon.web import EventletAPIRunner
+    # from pon.web import EventletAPIRunner
 
     ROOT_DIR = Path(os.path.abspath(os.curdir))
     PROJECT_NAME = ROOT_DIR.name

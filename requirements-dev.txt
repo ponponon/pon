@@ -5,3 +5,4 @@ psutil
 pylint
 twine
 mkdocs
+ruff
