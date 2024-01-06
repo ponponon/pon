@@ -11,6 +11,10 @@ from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
 from pon.core import get_class_names
+from pon.constants import DEFAULT_MAX_WORKERS
+from pon.setting import PonConfig
+from pon.constants import DEFAULT_FRAMEWORK, DEFAULT_FRAMEWORK_GITHUB, DEFAULT_PROJECT_NAME
+from pon import VERSION
 
 
 def is_dispatcher(obj: Type[Any]) -> bool:
@@ -20,7 +24,7 @@ def is_dispatcher(obj: Type[Any]) -> bool:
 class EventRunnerContext:
     service_name: str
 
-    def __init__(self, config: dict):
+    def __init__(self, config: PonConfig):
         self.config = config
 
     def setup_service_name(self, service_name: str):
@@ -32,7 +36,7 @@ class EventDispatcher:
 
     def __call__(self, event_type: str, event_data: Any) -> None:
         from pon.standalone.events import event_dispatcher
-        amqp_uri = self.context.config['AMQP_URI']
+        amqp_uri = self.context.config.amqp_uri
         dispatch = event_dispatcher(amqp_uri)
         dispatch(
             service_name=self.context.service_name,
@@ -53,7 +57,6 @@ class QueueLine:
 
 
 class EventletEventRunner:
-    amqp_uri: str
     queues: List[QueueLine]
 
     def __init__(self) -> None:
@@ -94,18 +97,23 @@ class EventletEventRunner:
 
     def load_config(self, config_filepath: Path):
         with open(config_filepath, 'r', encoding='utf-8') as f:
-            config: Dict[str, Dict] = yaml.safe_load(f)
-            self.context = EventRunnerContext(config)
-        self.amqp_uri = config['AMQP_URI']
-        logger.info(self.amqp_uri)
+            loaded_config: Dict[str, Dict] = yaml.safe_load(f)
+
+            changed_config = {}
+            for k, v in loaded_config.items():
+                changed_config[k.lower()] = v
+
+            config = PonConfig(**changed_config)
+        self.config = config
+        self.context = EventRunnerContext(config)
 
     def declare_exchange(self, exchange: Exchange):
-        with Connection(self.amqp_uri) as conn:
+        with Connection(self.config.amqp_uri) as conn:
             with conn.channel() as channel:
                 exchange.declare(channel=channel)
 
     def declare_queue(self, queue: Queue):
-        with Connection(self.amqp_uri) as conn:
+        with Connection(self.config.amqp_uri) as conn:
             with conn.channel() as channel:
                 queue.declare(channel=channel)
 
@@ -168,21 +176,12 @@ class EventletEventRunner:
         # 2. 开始监听和消费
         while True:
             try:
-                from pon.constants import DEFAULT_FRAMEWORK, DEFAULT_FRAMEWORK_GITHUB, DEFAULT_PROJECT_NAME
-                from pon import VERSION
-                framework = self.context.config.get(
-                    'FRAMEWORK', DEFAULT_FRAMEWORK)
-                framework_github = self.context.config.get(
-                    'DEFAULT_FRAMEWORK_GITHUB', DEFAULT_FRAMEWORK_GITHUB)
-                project_name = self.context.config.get(
-                    'PROJECT_NAME', os.environ['PROJECT_NAME'] or DEFAULT_PROJECT_NAME)
-
-                with Connection(self.amqp_uri, transport_options={
+                with Connection(self.config.amqp_uri, transport_options={
                         'client_properties': {
-                            'framework': framework,
+                            'framework': self.config.framework,
                             'framework_version': VERSION,
-                            'framework_github': framework_github,
-                            'project_name': project_name,
+                            'framework_github': self.config.framework_github,
+                            'project_name': self.config.project_name,
                         }}) as conn:
                     consumers: List[Consumer] = []
                     for queueline in self.queues:
@@ -191,7 +190,7 @@ class EventletEventRunner:
                         consumer = Consumer(
                             channel,
                             queues=[queueline.queue],
-                            prefetch_count=10,
+                            prefetch_count=self.context.config.max_workers,
                             on_message=MessageConsumer(
                                 queue=queueline.queue,
                                 service_cls=queueline.service_cls,
@@ -199,7 +198,7 @@ class EventletEventRunner:
                             ).handle_message
                         )
                         consumers.append(consumer)
-                    logger.info(f'start consuming {self.amqp_uri}')
+                    logger.info(f'start consuming {self.config.amqp_uri}')
 
                     with nested(*consumers):
                         while True:
