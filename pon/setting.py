@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from pon.constants import DEFAULT_MAX_WORKERS
 from pon.constants import DEFAULT_PROJECT_NAME
 from pon.constants import DEFAULT_FRAMEWORK, DEFAULT_FRAMEWORK_GITHUB

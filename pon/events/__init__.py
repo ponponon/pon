@@ -11,9 +11,7 @@ from kombu.transport.pyamqp import Channel
 from pon.events.message import MessageConsumer
 from pon.standalone.events import get_event_exchange
 from pon.core import get_class_names
-from pon.constants import DEFAULT_MAX_WORKERS
 from pon.setting import PonConfig
-from pon.constants import DEFAULT_FRAMEWORK, DEFAULT_FRAMEWORK_GITHUB, DEFAULT_PROJECT_NAME
 from pon import VERSION
 
 
